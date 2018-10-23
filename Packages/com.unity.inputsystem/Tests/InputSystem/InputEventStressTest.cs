@@ -1,45 +1,66 @@
 #if UNITY_EDITOR || DEVELOPMENT_BUILD
 using NUnit.Framework;
-using System;
 using System.Collections;
-using System.Linq;
-using System.Runtime.InteropServices;
-using Unity.Collections.LowLevel.Unsafe;
 using UnityEngine;
 using UnityEngine.Experimental.Input;
-using UnityEngine.Experimental.Input.Controls;
-using UnityEngine.Experimental.Input.Layouts;
 using UnityEngine.Experimental.Input.LowLevel;
-using UnityEngine.Experimental.Input.Utilities;
-using UnityEngine.Experimental.PlayerLoop;
 using UnityEngine.TestTools;
 
-public class InputEventStressTest
+public class InputEventStressTests
 {
+
     [UnityTest]
-    public IEnumerator GameObject_WithRigidBody_WillBeAffectedByPhysics()
+    public IEnumerator InputEventStressTests_RunOneGamePadOneEventType195Frames()
     {
-        InputDevice[] deviceArray = new InputDevice[2];
- 
-        for (int i = 0; i < 2; i++)
+        yield return new MonoBehaviourTest<RunOneGamePadOneEventType195Frames>();
+
+    }
+
+    public class RunOneGamePadOneEventType195Frames : MonoBehaviour, IMonoBehaviourTest
+    {
+        private int frameCount;
+        private float sentInputTriggerValue;
+        private Gamepad gamePad = null;
+
+        public bool IsTestFinished
         {
-            deviceArray[i] = InputSystem.AddDevice<Gamepad>();
+            get { return frameCount > 195; }
         }
 
-        // run 500 frames
-        for (int i = 0; i < 100; i++)
+        void OnEnable()
         {
-            for (int j = 0; j < 2; j++)
-            {
-                var value = (i + j + 190) / 1000f;
-                InputSystem.QueueStateEvent(deviceArray[j], new GamepadState { rightTrigger = value }, InputRuntime.s_Instance.currentTime);
-            }
-            yield return new WaitForEndOfFrame();
+            gamePad = InputSystem.AddDevice<Gamepad>();
+        }
 
-            for (int j = 0; j < 2; j++)
+        void Update()
+        {
+            frameCount++;
+
+            if (frameCount % 2 == 1)
+                GenerateInput();
+            else
+                ReadInput();
+        }
+
+        void OnDisable()
+        {
+            InputSystem.RemoveDevice(gamePad);
+        }
+
+        private void GenerateInput()
+        {
+            if (gamePad != null)
             {
-                var value = (i + j + 190) / 1000f;
-                Assert.That(((Gamepad)deviceArray[j]).rightTrigger.ReadValue(), Is.EqualTo(value).Within(0.000001));
+                sentInputTriggerValue = frameCount / 1000f;
+                InputSystem.QueueStateEvent(gamePad, new GamepadState {rightTrigger = sentInputTriggerValue }, InputRuntime.s_Instance.currentTime);
+            }
+        }
+
+        private void ReadInput()
+        {
+            if (gamePad != null)
+            {
+                Assert.That(gamePad.rightTrigger.ReadValue(), Is.EqualTo(sentInputTriggerValue).Within(0.000001));
             }
         }
     }
