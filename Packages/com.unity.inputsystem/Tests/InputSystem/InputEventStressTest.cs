@@ -8,12 +8,10 @@ using UnityEngine.TestTools;
 
 public class InputEventStressTests
 {
-
     [UnityTest]
     public IEnumerator InputEventStressTests_RunOneGamePadOneEventType195Frames()
     {
         yield return new MonoBehaviourTest<RunOneGamePadOneEventType195Frames>();
-
     }
 
     public class RunOneGamePadOneEventType195Frames : MonoBehaviour, IMonoBehaviourTest
