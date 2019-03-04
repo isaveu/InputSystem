@@ -1,8 +1,6 @@
 editors:
-  - version: 2018.3
   - version: 2019.1
-  - version: trunk
-platforms:
+ platforms:
   - name: win
     type: Unity::VM
     image: package-ci/win10:latest
