@@ -1,6 +1,6 @@
 editors:
-  - version: 2019.1
- platforms:
+  - version: 2018.3
+platforms:
   - name: win
     type: Unity::VM
     image: package-ci/win10:latest
@@ -31,4 +31,4 @@ editors:
       paths:
         - "utr_output/**/*"
 {% endfor %}
-{% endfor %} 
+{% endfor %}
